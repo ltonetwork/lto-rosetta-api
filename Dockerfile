@@ -8,7 +8,7 @@ RUN npm ci
 RUN npm run build
 
 
-FROM wavesplatform/wavesnode:latest
+FROM legalthings/public-node:latest
 ENV NODE_ENV=production
 USER root
 RUN apt-get update && apt-get install -y curl

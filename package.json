@@ -1,12 +1,12 @@
 {
-  "name": "waves-rosetta",
+  "name": "lto-rosetta",
   "version": "0.1.0",
-  "description": "Rosetta-API implementation for Waves Protocol",
+  "description": "Rosetta-API implementation for LTO Network",
   "repository": {
     "type": "git",
-    "url": "https://github.com/"
+    "url": "https://github.com/ltonetwork/lto-rosetta-api"
   },
-  "author": "Inal Kardanov",
+  "author": "Arnold Daniels",
   "license": "MIT",
   "scripts": {
     "build": "npm run build-ts",
