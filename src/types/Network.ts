@@ -20,7 +20,7 @@ export class Network {
 
     private readonly network: NetworkTypesEnum;
 
-    private static Blockchain = 'LTO Network';
+    private static Blockchain = 'lto';
     public static SupportedTypes = [NetworkTypesEnum.Mainnet, NetworkTypesEnum.Testnet];
     public static ApiBase = API_BASE;
     public static ReferenceApiBase = REFERENCE_API_BASE;

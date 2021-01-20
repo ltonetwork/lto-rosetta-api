@@ -7,7 +7,7 @@ import {OperationStatuses, OperationTypes} from "../types/Operation";
 import {ErrorCodes} from "../types/ErrorResponse";
 
 const {version} = require('../../package.json');
-const {info} = require('../../resotta-api.json');
+const {info} = require('../../rosetta-api.json');
 
 
 const NetworkController = Router();
@@ -57,7 +57,7 @@ const getNetworkStatus = async (req: Request, res: Response, next: NextFunction)
                 target_index: referenceNodeHeight,
                 stage: syncStage
             },
-        }
+        };
         res.json(statusData);
     } catch (e) {
         next(e);
@@ -72,14 +72,13 @@ const getNetworkOptions = async (req: Request, res: Response, next: NextFunction
         const errors = [];
 
         for (let item in ErrorCodes) {
-            if (!Number(item)) return;
+            if (!Number(item)) continue;
             errors.push({
                 code: Number(item),
                 message: ErrorCodes[item],
                 retriable: true
-            })
+            });
         }
-
 
         const options = {
             version: {
@@ -89,16 +88,15 @@ const getNetworkOptions = async (req: Request, res: Response, next: NextFunction
                 metadata: {}
             },
             allow: {
-                operation_statuses: [
-                    Object.values(OperationStatuses)
-                ],
+                operation_statuses: Object.values(OperationStatuses),
                 operation_types: [
                     OperationTypes.Transfer
                 ],
                 errors: errors,
                 historical_balance_lookup: false
             }
-        }
+        };
+
         res.json(options);
     } catch (e) {
         next(e);

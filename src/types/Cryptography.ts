@@ -1,4 +1,5 @@
-import {base16Decode, base58Encode, buildAddress} from '@waves/ts-lib-crypto'
+import {base16Decode, base58Encode} from '@waves/ts-lib-crypto'
+import {buildAddress} from '@lto-network/lto-crypto'
 import {CHAIN_ID} from "../secrets/secrets";
 import {ErrorCodes, ErrorResponse} from "./ErrorResponse";
 
@@ -49,6 +50,7 @@ export class PublicKey {
 
     deriveAddress() {
         const publicKeyBytes = base16Decode(this.hexBytes);
+        console.log(CHAIN_ID);
         return base58Encode(buildAddress(publicKeyBytes, CHAIN_ID));
     }
 

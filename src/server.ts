@@ -21,4 +21,6 @@ const server = app.listen(app.get("port"), () => {
     console.log("  Press CTRL-C to stop\n");
 });
 
+server.setTimeout(10000);
+
 export default server;

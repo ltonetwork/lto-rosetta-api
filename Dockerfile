@@ -18,7 +18,7 @@ RUN npm i -g forever
 
 WORKDIR /usr/src/app
 COPY package*.json ./
-COPY resotta-api.json ./
+COPY rosetta-api.json ./
 COPY .env ./
 RUN npm install
 COPY --from=builder /usr/src/app/dist/ dist/
