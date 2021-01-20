@@ -19,8 +19,6 @@ The simplest way to build an image is to run the following command:
 docker build . -t lto-rosetta-api
 ```
 
-Additional properties are described [here](https://github.com/LTOplatform/LTO/blob/master/docker/README.md#building-docker-image).
-
 ### Running docker image
 
 ```sh
@@ -34,7 +32,7 @@ API call examples are shown [here](https://www.getpostman.com/collections/f09f5a
 
 ### Configuration
 
-LTO node image configuration process is described [here](https://github.com/ltonetwork/lto-public-node#configuration)
+LTO Network public node image configuration process is described [here](https://github.com/ltonetwork/lto-public-node#configuration).
 
 Middleware configuration is stored in `.env` file 
 

@@ -29,6 +29,6 @@ COPY docker-entrypoint.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 WORKDIR /usr/local/bin/
 
-VOLUME /var/lib/waves
-VOLUME /usr/share/waves/lib/plugins
+VOLUME /var/lib/lto
+VOLUME /usr/share/lto/lib/plugins
 ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
