@@ -4,14 +4,14 @@ import {NextFunction, Request, Response, Router} from "express";
 import {Network} from "../types/Network";
 import {CurveTypesEnum, ISignature, PublicKey, SignatureType} from "../types/Cryptography";
 import {IOperation, OperationTypes} from "../types/Operation";
-import {WavesCurrencyDetails} from "../types/WavesCurrencyDetails";
+import {LTOCurrencyDetails} from "../types/LTOCurrencyDetails";
 import {ErrorCodes, ErrorResponse} from "../types/ErrorResponse";
-import {broadcast, ITransferTransaction, transfer} from "@waves/waves-transactions";
-import {binary} from '@waves/marshall'
-import {address, base16Decode, base16Encode, base58Encode, verifySignature} from "@waves/ts-lib-crypto";
+import {broadcast, ITransferTransaction, transfer} from "@lto-network/lto-transactions";
+import {binary} from '@lto-network/lto-marshall'
+import {address} from "@lto-network/lto-crypto";
+import {base16Decode, base16Encode, base58Encode} from "@waves/ts-lib-crypto";
 import {IApiTransaction, Transaction} from "../types/Transaction";
 import {API_BASE, CHAIN_ID} from "../secrets/secrets";
-import {apiCall} from "../utils/utils";
 
 const ConstructionController = Router();
 
@@ -58,9 +58,9 @@ const processPayloads = async (req: Request, res: Response, next: NextFunction) 
         const network = Network.createFromIdentifier(req.body.network_identifier);
         const operationForTransfer = req.body.operations.find((operation: IOperation) => {
             return operation.type === OperationTypes.Transfer
-                && operation.amount.currency.symbol === WavesCurrencyDetails.symbol
+                && operation.amount.currency.symbol === LTOCurrencyDetails.symbol
                 && Number(operation.amount.value) > 0
-                && operation.amount.currency.decimals === WavesCurrencyDetails.decimals
+                && operation.amount.currency.decimals === LTOCurrencyDetails.decimals
                 && operation.metadata && operation.metadata.public_key && operation.metadata.public_key.hex_bytes
                 && operation.metadata.public_key.curve_type === CurveTypesEnum.ED25519
         }) as IOperation;

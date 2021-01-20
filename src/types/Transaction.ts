@@ -1,17 +1,16 @@
 import {
-    IInvokeScriptTransaction,
     IMassTransferTransaction,
     ITransaction,
     ITransferTransaction,
     WithSender
-} from "@waves/waves-transactions";
-import {WithId} from "@waves/waves-transactions/dist/transactions";
-import {WithProofs} from "@waves/waves-transactions/src/transactions";
+} from "@lto-network/lto-transactions";
+import {WithId} from "@lto-network/lto-transactions/dist/transactions";
+import {WithProofs} from "@lto-network/lto-transactions/src/transactions";
 import {apiCall} from "../utils/utils";
-import {API_BASE, BLOCK_REWARD_ACTIVATION_HEIGHT, CHAIN_ID, NG_ACTIVATION_HEIGHT} from "../secrets/secrets";
+import {API_BASE, CHAIN_ID, BURN_ACTIVATION_HEIGHT} from "../secrets/secrets";
 import {Block} from "./Block";
 import {IOperation, Operation} from "./Operation";
-import {address} from "@waves/ts-lib-crypto";
+import {address} from "@lto-network/lto-crypto";
 
 export interface ITransactionIdentifier {
     hash: string
@@ -76,15 +75,8 @@ export class Transaction {
             case 4: {
                 return this.getTransferOperations();
             }
-            // TODO: Add exchange parsing
-            case 7: {
-                return this.getExchangeOperations();
-            }
             case 11: {
                 return this.getMassTransferOperations();
-            }
-            case 16: {
-                return this.getInvokeScriptOperations();
             }
         }
     }
@@ -130,7 +122,6 @@ export class Transaction {
 
     private getTransferOperations(): Promise<Array<IOperation>> {
         const body = this.body as IApiTransaction & ITransferTransaction & WithSenderAddress;
-        if (body.assetId !== null) return Promise.resolve([]);
         const senderAddress = body.sender ? body.sender : address(body.senderPublicKey, CHAIN_ID);
         return Promise.resolve([
             Operation.create(0, body.recipient, body.amount),
@@ -138,38 +129,8 @@ export class Transaction {
         ]);
     }
 
-    // TODO: Implement properly
-    private getExchangeOperations(): Promise<Array<IOperation>> {
-        // const body = this.body as IApiTransaction & IExchangeTransaction;
-        return Promise.resolve([]);
-    }
-
-    // TODO: Implement properly
-    private async getInvokeScriptOperations(): Promise<Array<IOperation>> {
-        const body = this.body as IApiTransaction & IInvokeScriptTransaction & WithSenderAddress;
-        const result: Array<IOperation> = [];
-        let idIndex = 0;
-        body.payment.forEach(payment => {
-            if (payment.assetId !== null) return;
-            result.push(
-                Operation.create(idIndex++, body.sender, -payment.amount),
-                Operation.create(idIndex++, body.dApp, payment.amount)
-            );
-        });
-        const callResult = await apiCall(`${API_BASE}/debug/stateChanges/info/${body.id}`);
-        callResult.stateChanges.transfers.forEach((transfer: { address: string, asset: string | null, amount: number }) => {
-            if (transfer.asset !== null) return;
-            result.push(
-                Operation.create(idIndex, transfer.address, transfer.amount),
-                Operation.create(idIndex, body.dApp, -transfer.amount),
-            );
-        });
-        return Promise.resolve(result);
-    }
-
     private getMassTransferOperations(): Promise<Array<IOperation>> {
         const body = this.body as IApiTransaction & IMassTransferTransaction & WithSenderAddress;
-        if (body.assetId !== null) return Promise.resolve([]);
         let operationId = 0;
         const resultArray: Array<IOperation> = [];
         body.transfers.forEach((transfer) => {
@@ -182,21 +143,16 @@ export class Transaction {
     }
 
     private async getRewardWithFeesOperations(): Promise<Array<IOperation>> {
-        const result: Array<IOperation> = [];
         const blockGenerator = await this.block.getGenerator();
-        if (this.block.getHeight() >= NG_ACTIVATION_HEIGHT) {
-            const prevBlock = await new Block(this.block.getHeight() - 1).fetch();
-            result.push(
-                Operation.create(0, blockGenerator, (prevBlock.getBody().totalFee * 0.6)),
-                Operation.create(1, blockGenerator, (this.block.getBody().totalFee * 0.4))
-            );
-        } else {
-            result.push(Operation.create(0, blockGenerator, this.block.getBody().totalFee))
-        }
-        if (this.block.getHeight() >= BLOCK_REWARD_ACTIVATION_HEIGHT) {
-            result.push(Operation.create(2, blockGenerator, this.block.getBody().reward))
-        }
-        return Promise.resolve(result);
+        const prevBlock = await new Block(this.block.getHeight() - 1).fetch();
+        const burned = this.block.getHeight() >= BURN_ACTIVATION_HEIGHT ? 10000000 : 0;
+        const prevFee = (prevBlock.getBody().totalFee - (prevBlock.getBody().transactionCount * burned)) * 0.6;
+        const curFee = (this.block.getBody().totalFee - (this.block.getBody().transactionCount * burned)) * 0.4;
+
+        return Promise.resolve([
+            Operation.create(0, blockGenerator, prevFee),
+            Operation.create(1, blockGenerator, curFee)
+        ]);
     }
 
     getIdentifier() {

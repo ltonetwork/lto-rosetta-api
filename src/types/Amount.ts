@@ -1,4 +1,4 @@
-import {ICurrency, WavesCurrencyDetails} from "./WavesCurrencyDetails";
+import {ICurrency, LTOCurrencyDetails} from "./LTOCurrencyDetails";
 
 export interface IAmount {
     value: string,
@@ -15,7 +15,7 @@ export class Amount {
     getObject() {
         return {
             value: this.value.toString(),
-            currency: WavesCurrencyDetails,
+            currency: LTOCurrencyDetails,
             "metadata": {}
         }
     }

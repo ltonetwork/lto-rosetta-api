@@ -1,9 +1,8 @@
-import {ITransaction, nodeInteraction, WithId} from '@waves/waves-transactions';
+import {ITransaction, WithId} from '@lto-network/lto-transactions';
 import {Block} from "./Block";
 import {API_BASE, REFERENCE_API_BASE} from "../secrets/secrets";
 import {ErrorCodes, ErrorResponse} from "./ErrorResponse";
 import {apiCall} from "../utils/utils";
-import {IApiTransaction} from "Transaction";
 
 
 export interface INetworkIdentifier {
@@ -14,18 +13,15 @@ export interface INetworkIdentifier {
 
 export enum NetworkTypesEnum {
     Mainnet = 'mainnet',
-    Testnet = 'testnet',
-    Stagenet = 'stagenet',
-    Devnet = 'devnet',
-    Local = 'local'
+    Testnet = 'testnet'
 }
 
 export class Network {
 
     private readonly network: NetworkTypesEnum;
 
-    private static Blockchain = 'Waves';
-    public static SupportedTypes = [NetworkTypesEnum.Mainnet, NetworkTypesEnum.Testnet, NetworkTypesEnum.Stagenet];
+    private static Blockchain = 'LTO Network';
+    public static SupportedTypes = [NetworkTypesEnum.Mainnet, NetworkTypesEnum.Testnet];
     public static ApiBase = API_BASE;
     public static ReferenceApiBase = REFERENCE_API_BASE;
 
@@ -67,11 +63,13 @@ export class Network {
     }
 
     async getCurrentHeight(): Promise<number> {
-        return await nodeInteraction.currentHeight(this.getApiBase());
+        const blockHeight = await apiCall(`${API_BASE}/blocks/height`);
+        return blockHeight.height;
     }
 
     async getReferenceNodeCurrentHeight(): Promise<number> {
-        return nodeInteraction.currentHeight(this.getReferenceApiBase());
+        const blockHeight = await apiCall(`${REFERENCE_API_BASE}/blocks/height`);
+        return blockHeight.height;
     }
 
     async getCurrentBlock(): Promise<Block> {

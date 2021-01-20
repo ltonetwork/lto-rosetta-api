@@ -3,9 +3,11 @@ import errorHandler from "errorhandler";
 import app from "./app";
 
 /**
- * Error Handler. Provides full stack - remove for production
+ * Error Handler. Provides full stack
  */
-app.use(errorHandler());
+if (!app.get("prod")) {
+    app.use(errorHandler());
+}
 
 /**
  * Start Express server.

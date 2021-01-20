@@ -1,7 +1,6 @@
 "use strict";
 
 import {NextFunction, Request, Response, Router} from "express";
-import {logger} from "../logger/WinstonLogger";
 import {Network} from "../types/Network";
 import {Block} from "../types/Block";
 import {OperationStatuses, OperationTypes} from "../types/Operation";

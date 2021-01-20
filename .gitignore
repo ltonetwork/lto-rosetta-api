@@ -38,4 +38,4 @@ Thumbs.db
 dist/**/*
 
 # ignore yarn.lock
-yarn.lock
+yarn.lockpackage-lock.json

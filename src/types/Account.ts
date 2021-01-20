@@ -1,7 +1,7 @@
 import {API_BASE} from "../secrets/secrets";
 import {Block} from "./Block";
 import {ErrorCodes, ErrorResponse} from "./ErrorResponse";
-import {WavesCurrencyDetails} from "./WavesCurrencyDetails";
+import {LTOCurrencyDetails} from "./LTOCurrencyDetails";
 import {apiCall} from "../utils/utils";
 
 export interface IAccountIdentifier {
@@ -39,10 +39,9 @@ export class Account {
                 {
                     value: balanceValue.toString(),
                     currency: {
-                        symbol: WavesCurrencyDetails.symbol,
-                        decimals: WavesCurrencyDetails.decimals,
+                        symbol: LTOCurrencyDetails.symbol,
+                        decimals: LTOCurrencyDetails.decimals,
                         metadata: {
-                            // "Issuer": "Satoshi"
                         }
                     },
                     metadata: {}

@@ -3,7 +3,7 @@
 import {NextFunction, Request, Response, Router} from "express";
 import {Network} from "../types/Network";
 import {Transaction} from "../types/Transaction";
-import {ITransaction, WithId} from "@waves/waves-transactions";
+import {ITransaction, WithId} from "@lto-network/lto-transactions";
 
 const MempoolController = Router();
 

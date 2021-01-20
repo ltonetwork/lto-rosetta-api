@@ -3,7 +3,7 @@ export interface ICurrency {
     decimals: number,
 }
 
-export const WavesCurrencyDetails: ICurrency = {
-    symbol: 'WAVES',
+export const LTOCurrencyDetails: ICurrency = {
+    symbol: 'LTO',
     decimals: 8
 }

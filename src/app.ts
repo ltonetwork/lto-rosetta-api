@@ -1,7 +1,6 @@
 import express, {NextFunction, Request, Response} from "express";
 import compression from "compression";  // compresses requests
 import bodyParser from "body-parser";
-import {ENVIRONMENT} from './secrets/secrets';
 // Controllers (route handlers)
 import NetworkController from "./controllers/network";
 import AccountController from "./controllers/account";
@@ -16,6 +15,7 @@ const app = express();
 
 // Express configuration
 app.set("port", process.env.PORT || 3000);
+app.set("prod", process.env.NODE_ENV === "production")
 app.use(compression());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));

@@ -1,4 +1,4 @@
-import {address, base16Decode, base58Encode, buildAddress, isPublicKey, publicKey} from '@waves/ts-lib-crypto'
+import {base16Decode, base58Encode, buildAddress} from '@waves/ts-lib-crypto'
 import {CHAIN_ID} from "../secrets/secrets";
 import {ErrorCodes, ErrorResponse} from "./ErrorResponse";
 
