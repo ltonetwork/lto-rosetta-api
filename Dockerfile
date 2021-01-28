@@ -25,10 +25,3 @@ COPY --from=builder /usr/src/app/dist/ dist/
 COPY .env ./dist/
 EXPOSE 8080 6869 6868 6863 6862
 
-COPY docker-entrypoint.sh /usr/local/bin/
-RUN chmod +x /usr/local/bin/docker-entrypoint.sh
-WORKDIR /usr/local/bin/
-
-VOLUME /var/lib/lto
-VOLUME /usr/share/lto/lib/plugins
-ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
