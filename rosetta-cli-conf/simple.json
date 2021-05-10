@@ -1,0 +1,20 @@
+{
+  "network": {
+    "blockchain": "lto",
+    "network": "testnet"
+  },
+  "online_url": "http://localhost:8080",
+  "data_directory": "../data",
+  "http_timeout": 10,
+  "tip_delay": 300,
+  "data": {
+    "log_blocks": true,
+    "log_transactions": true,
+    "log_balance_changes": true,
+    "log_reconciliations": true,
+    "historical_balance_enabled": false,
+    "reconciliation_disabled": false,
+    "inactive_discrepency_search_disabled": false,
+    "balance_tracking_disabled": false
+  }
+}

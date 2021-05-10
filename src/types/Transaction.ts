@@ -95,7 +95,7 @@ export class Transaction {
             // Sending amount
             Operation.create(0, body.sender, -body.amount),
             Operation.create(1, body.recipient, body.amount),
-            Operation.create(2, body.recipient, body.amount),
+            // Operation.create(2, body.recipient, body.amount),
 
             // Fee for sender
             // {
@@ -123,9 +123,11 @@ export class Transaction {
     private getTransferOperations(): Promise<Array<IOperation>> {
         const body = this.body as IApiTransaction & ITransferTransaction & WithSenderAddress;
         const senderAddress = body.sender ? body.sender : address(body.senderPublicKey, CHAIN_ID);
+        console.log('fee', body.fee)
         return Promise.resolve([
             Operation.create(0, body.recipient, body.amount),
-            Operation.create(1, senderAddress, -body.amount)
+            Operation.create(1, senderAddress, -body.amount),
+            Operation.create(2, senderAddress, -body.fee)
         ]);
     }
 
@@ -139,6 +141,9 @@ export class Transaction {
                 Operation.create(operationId++, body.sender, -transfer.amount)
             )
         });
+        const massTransferFee = Operation.create(operationId++, body.sender, -body.fee);
+        console.log('mas fee', massTransferFee)
+        resultArray.push(massTransferFee);
         return Promise.resolve(resultArray);
     }
 

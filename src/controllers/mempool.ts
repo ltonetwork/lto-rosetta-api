@@ -24,7 +24,6 @@ const getTransactionInMempool = async (req: Request, res: Response, next: NextFu
     try {
         const network = Network.createFromIdentifier(req.body.network_identifier);
         const mempoolTxs = await network.getMempoolTxs();
-
         const needed = mempoolTxs.find((tx: ITransaction & WithId) => {
             return tx.id === req.body.transaction_identifier.hash
         })

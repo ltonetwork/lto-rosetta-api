@@ -14,12 +14,5 @@
   "end_conditions": {
     "tip": true
   }
- },
- "construction": {
-  "constructor_dsl_file": "lto.ros",
-  "end_conditions": {
-   "create_account": 10,
-   "transfer": 10
-  }
  }
 }

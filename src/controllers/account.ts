@@ -11,7 +11,10 @@ const getBalance = async (req: Request, res: Response, next: NextFunction) => {
     try{
         // check correctness of network identifier
         const network = Network.createFromIdentifier(req.body.network_identifier);
-        const block = await Block.createFromIdentifier(req.body.block_identifier);
+        let block;
+        if(req.body.block_identifier) {
+             block = await Block.createFromIdentifier(req.body.block_identifier);
+        }
         const account = Account.createFromIdentifier(req.body.account_identifier)
         const balanceData = await account.getBalanceData(block);
         res.json(balanceData);
