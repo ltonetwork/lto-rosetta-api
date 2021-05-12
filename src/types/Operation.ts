@@ -3,7 +3,17 @@ import {Amount, IAmount} from "./Amount";
 
 
 export enum OperationTypes {
-    Transfer = 'TRANSFER'
+    Genesis = 'GENESIS',
+    Reward = 'REWARD',
+    Transfer = 'TRANSFER',
+    Lease = 'Lease',
+    CancelLease = 'CANCEL LEASE',
+    MassTransfer = 'MASS TRANSFER',
+    Anchor = 'ANCHOR',
+    Association = 'ASSOCIATION',
+    RevokeAssociation = 'REVOKE ASSOCIATION',
+    Sponsor = 'SPONSOR',
+    CancelSponsor = 'CANCEL SPONSOR',
 }
 
 export enum OperationStatusValues {

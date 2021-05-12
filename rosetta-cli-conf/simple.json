@@ -8,6 +8,7 @@
   "http_timeout": 10,
   "tip_delay": 300,
   "data": {
+    "exempt_accounts": "../rosetta-cli-conf/accounts.json",
     "log_blocks": true,
     "log_transactions": true,
     "log_balance_changes": true,
