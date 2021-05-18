@@ -76,9 +76,9 @@ export class Transaction {
             case 1: {
                 return this.getGenesisOperations();
             }
-            case 2: {
-                return this.getPaymentOperations();
-            }
+            // case 2: {
+            //     return this.getPaymentOperations();
+            // }
             case 4: {
                 return this.getTransferOperations();
             }
@@ -240,9 +240,14 @@ export class Transaction {
         const blockGenerator = await this.block.getGenerator();
         const prevBlock = await new Block(this.block.getHeight() - 1).fetch();
         const burned = this.block.getHeight() >= BURN_ACTIVATION_HEIGHT ? 10000000 : 0;
-        const prevFee = (prevBlock.getBody().totalFee - (prevBlock.getBody().transactionCount * burned)) * 0.6;
-        const curFee = (this.block.getBody().totalFee - (this.block.getBody().transactionCount * burned)) * 0.4;
+        const prevFee = (prevBlock.getBody().fee - (prevBlock.getBody().transactionCount * burned)) * 0.6;
+        const curFee = (this.block.getBody().fee - (this.block.getBody().transactionCount * burned)) * 0.4;
 
+        if(this.block.getHeight() === 1) {
+            return Promise.resolve([
+                Operation.create(0, blockGenerator, curFee, OperationTypes.Reward)
+            ]);
+        }
         return Promise.resolve([
             Operation.create(0, blockGenerator, prevFee, OperationTypes.Reward),
             Operation.create(1, blockGenerator, curFee, OperationTypes.Reward)

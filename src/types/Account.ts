@@ -23,7 +23,7 @@ export class Account {
 
     async getBalanceAtBlock(block?: Block): Promise<{ height: number; balance: number }> {
         const balancesHistory = await apiCall(`${API_BASE}/addresses/balance/history/${this.address}`)  as Array<{ height: number, balance: number }>;
-        const oldestBlock = balancesHistory[balancesHistory.length - 1].height;
+        const effectiveBalance = await apiCall(`${API_BASE}/addresses/effectiveBalance/${this.address}`);
 
         if(block) {
             // if (oldestBlock > block.getHeight()) {
@@ -33,15 +33,29 @@ export class Account {
                 let aDiff = Math.abs(a.height - block.getHeight());
                 let bDiff = Math.abs(b.height - block.getHeight());
 
+                let height;
                 if (aDiff == bDiff) {
-                    return a > b ? a : b;
+                    height = a > b ? a.height : b.height;
                 } else {
-                    return bDiff < aDiff ? b : a;
+                    height = bDiff < aDiff ? b.height : a.height;
+                }
+                return {
+                    height,
+                    balance: effectiveBalance.balance
                 }
             });
         }
-
-        return balancesHistory.reverse().pop();
+        if (balancesHistory.length > 0) {
+            return {
+                height: balancesHistory.reverse().pop().height,
+                balance: effectiveBalance.balance
+            };
+        } else {
+            return {
+                height: 1,
+                balance: 0
+            }
+        }
         // const oldestBlock = balancesHistory[balancesHistory.length - 1].height;
         // const balanceAtBlock = balancesHistory.find((element) => element.height === block.getHeight());
         // if (balanceAtBlock === undefined) {
