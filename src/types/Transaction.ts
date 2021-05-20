@@ -1,6 +1,6 @@
 import {
     IAnchorTransaction, IAssociationTransaction,
-    ICancelLeaseTransaction, ILeaseTransaction,
+    ICancelLeaseTransaction, IDataTransaction, ILeaseTransaction,
     IMassTransferTransaction,
     ITransaction,
     ITransferTransaction,
@@ -12,12 +12,13 @@ import {
     ISponsorTransaction,
     WithId
 } from "@lto-network/lto-transactions/dist/transactions";
-import {WithProofs} from "@lto-network/lto-transactions/src/transactions";
+import {ISetScriptTransaction, WithProofs} from "@lto-network/lto-transactions/src/transactions";
 import {apiCall} from "../utils/utils";
 import {API_BASE, BURN_ACTIVATION_HEIGHT, CHAIN_ID} from "../secrets/secrets";
 import {Block} from "./Block";
 import {IOperation, Operation, OperationTypes} from "./Operation";
 import {address} from "@lto-network/lto-crypto";
+const storage = require('node-persist');
 
 export interface ITransactionIdentifier {
     hash: string
@@ -38,6 +39,16 @@ export interface WithSenderAddress {
 
 interface WithHeight {
     height: number;
+}
+
+class Sponsorship {
+    recipient: string;
+    sponsor: string;
+
+    constructor(recipient: string, sponsor: string) {
+        this.recipient = recipient;
+        this.sponsor = sponsor;
+    }
 }
 
 export class Transaction {
@@ -90,6 +101,12 @@ export class Transaction {
             }
             case 11: {
                 return this.getMassTransferOperations();
+            }
+            case 12: {
+                return this.getDataTransactions();
+            }
+            case 13: {
+                return this.getSetScriptTransaction();
             }
             case 15: {
                 return this.getAnchorTransactions();
@@ -147,24 +164,27 @@ export class Transaction {
         ]
     }
 
-    private getTransferOperations(): Promise<Array<IOperation>> {
+    private async getTransferOperations(): Promise<Array<IOperation>> {
         const body = this.body as IApiTransaction & ITransferTransaction & WithSenderAddress;
         const senderAddress = body.sender ?? address(body.senderPublicKey, CHAIN_ID);
+        const sponsor = await this.getSponsor(senderAddress);
 
         return Promise.resolve([
             Operation.create(0, body.recipient, body.amount, OperationTypes.Transfer),
             Operation.create(1, senderAddress, -body.amount, OperationTypes.Transfer),
-            Operation.create(2, senderAddress, -body.fee, OperationTypes.Transfer)
+            Operation.create(2, sponsor ?? senderAddress, -body.fee, OperationTypes.Transfer)
         ]);
     }
 
-    private getLeaseTransactions(): Promise<Array<IOperation>> {
+    private async getLeaseTransactions(): Promise<Array<IOperation>> {
         const body = this.body as IApiTransaction & ILeaseTransaction & WithSenderAddress;
         const senderAddress = body.sender ?? address(body.senderPublicKey, CHAIN_ID);
+        const sponsor = await this.getSponsor(senderAddress);
+
         return Promise.resolve([
             Operation.create(0, body.recipient, body.amount, OperationTypes.Lease),
             Operation.create(1, senderAddress, -body.amount, OperationTypes.Lease),
-            Operation.create(2, senderAddress, -body.fee, OperationTypes.Lease)
+            Operation.create(2, sponsor ?? senderAddress, -body.fee, OperationTypes.Lease)
         ]);
     }
 
@@ -172,15 +192,16 @@ export class Transaction {
         const body = this.body as IApiTransaction & ICancelLeaseTransaction & WithSenderAddress;
         const senderAddress = body.sender ?? address(body.senderPublicKey, CHAIN_ID);
         const leaseTransaction = await apiCall(`${API_BASE}/transactions/info/${body.leaseId}`) as ILeaseTransaction ;
+        const sponsor = await this.getSponsor(senderAddress);
 
         return Promise.resolve([
             Operation.create(0, senderAddress, leaseTransaction.amount, OperationTypes.CancelLease),
             Operation.create(1, leaseTransaction.recipient, -leaseTransaction.amount, OperationTypes.CancelLease),
-            Operation.create(2, senderAddress, -body.fee, OperationTypes.CancelLease)
+            Operation.create(2, sponsor ?? senderAddress, -body.fee, OperationTypes.CancelLease)
         ]);
     }
 
-    private getMassTransferOperations(): Promise<Array<IOperation>> {
+    private async getMassTransferOperations(): Promise<Array<IOperation>> {
         const body = this.body as IApiTransaction & IMassTransferTransaction & WithSenderAddress;
         let operationId = 0;
         const resultArray: Array<IOperation> = [];
@@ -190,49 +211,88 @@ export class Transaction {
                 Operation.create(operationId++, body.sender, -transfer.amount, OperationTypes.MassTransfer)
             )
         });
-        const massTransferFee = Operation.create(operationId++, body.sender, -body.fee, OperationTypes.MassTransfer);
+        const sponsor = await this.getSponsor(body.sender);
+        const massTransferFee = Operation.create(operationId++, sponsor ?? body.sender, -body.fee, OperationTypes.MassTransfer);
         resultArray.push(massTransferFee);
 
         return Promise.resolve(resultArray);
     }
 
-    private getAnchorTransactions(): Promise<Array<IOperation>> {
+    private async getDataTransactions(): Promise<Array<IOperation>> {
+        const body = this.body as IApiTransaction & IDataTransaction & WithSenderAddress;
+        const senderAddress = body.sender ? body.sender : address(body.senderPublicKey, CHAIN_ID);
+        const sponsor = await this.getSponsor(senderAddress);
+        return Promise.resolve([
+            Operation.create(0, sponsor ?? senderAddress, -body.fee, OperationTypes.Data)
+        ]);
+    }
+
+    private async getSetScriptTransaction(): Promise<Array<IOperation>> {
+        const body = this.body as IApiTransaction & ISetScriptTransaction & WithSenderAddress;
+        const senderAddress = body.sender ? body.sender : address(body.senderPublicKey, CHAIN_ID);
+        const sponsor = await this.getSponsor(senderAddress);
+        return Promise.resolve([
+            Operation.create(0, sponsor ?? senderAddress, -body.fee, OperationTypes.SetScript)
+        ]);
+    }
+
+    private async getAnchorTransactions(): Promise<Array<IOperation>> {
         const body = this.body as IApiTransaction & IAnchorTransaction & WithSenderAddress;
         const senderAddress = body.sender ? body.sender : address(body.senderPublicKey, CHAIN_ID);
+        const sponsor = await this.getSponsor(senderAddress);
+
         return Promise.resolve([
-            Operation.create(0, senderAddress, -body.fee, OperationTypes.Anchor)
+            Operation.create(0, sponsor ?? senderAddress, -body.fee, OperationTypes.Anchor)
         ]);
     }
 
-    private getAssociationTransactions(): Promise<Array<IOperation>> {
+    private async getAssociationTransactions(): Promise<Array<IOperation>> {
         const body = this.body as IApiTransaction & IAssociationTransaction & WithSenderAddress;
         const senderAddress = body.sender ? body.sender : address(body.senderPublicKey, CHAIN_ID);
+        const sponsor = await this.getSponsor(senderAddress);
+
         return Promise.resolve([
-            Operation.create(0, senderAddress, -body.fee, OperationTypes.Association)
+            Operation.create(0, sponsor ?? senderAddress, -body.fee, OperationTypes.Association)
         ]);
     }
 
-    private getRevokeAssociationTransactions(): Promise<Array<IOperation>> {
+    private async getRevokeAssociationTransactions(): Promise<Array<IOperation>> {
         const body = this.body as IApiTransaction & IRevokeAssociationTransaction & WithSenderAddress;
         const senderAddress = body.sender ? body.sender : address(body.senderPublicKey, CHAIN_ID);
+        const sponsor = await this.getSponsor(senderAddress);
+
         return Promise.resolve([
-            Operation.create(0, senderAddress, -body.fee, OperationTypes.RevokeAssociation)
+            Operation.create(0, sponsor ?? senderAddress, -body.fee, OperationTypes.RevokeAssociation)
         ]);
     }
 
-    private getSponsorTransactions(): Promise<Array<IOperation>> {
+    private async getSponsorTransactions(): Promise<Array<IOperation>> {
         const body = this.body as IApiTransaction & ISponsorTransaction & WithSenderAddress;
         const senderAddress = body.sender ? body.sender : address(body.senderPublicKey, CHAIN_ID);
+
+        const newSponsor = new Sponsorship(body.recipient, senderAddress);
+        let sponsors = await storage.getItem('sponsors') as Sponsorship[] || [];
+        sponsors = [...sponsors, newSponsor];
+        await storage.setItem('sponsors', sponsors);
+        const sponsor = await this.getSponsor(senderAddress);
+
         return Promise.resolve([
-            Operation.create(0, senderAddress, -body.fee, OperationTypes.Sponsor)
+            Operation.create(0, sponsor ?? senderAddress, -body.fee, OperationTypes.Sponsor)
         ]);
     }
 
-    private getCancelSponsorTransactions(): Promise<Array<IOperation>> {
+    private async getCancelSponsorTransactions(): Promise<Array<IOperation>> {
         const body = this.body as IApiTransaction & ICancelSponsorTransaction & WithSenderAddress;
         const senderAddress = body.sender ? body.sender : address(body.senderPublicKey, CHAIN_ID);
+
+        let sponsors = await storage.getItem('sponsors') as Sponsorship[];
+        sponsors = sponsors.filter((sponsor: Sponsorship) => sponsor.sponsor !== senderAddress && sponsor.recipient !== body.recipient);
+        await storage.removeItem('sponsors');
+        await storage.setItem('sponsors', sponsors);
+        const sponsor = await this.getSponsor(senderAddress);
+
         return Promise.resolve([
-            Operation.create(0, senderAddress, -body.fee, OperationTypes.CancelSponsor)
+            Operation.create(0, sponsor ?? senderAddress, -body.fee, OperationTypes.CancelSponsor)
         ]);
     }
 
@@ -252,6 +312,11 @@ export class Transaction {
             Operation.create(0, blockGenerator, prevFee, OperationTypes.Reward),
             Operation.create(1, blockGenerator, curFee, OperationTypes.Reward)
         ]);
+    }
+
+    private async getSponsor(address: string): Promise<string> {
+        const sponsors = await storage.getItem('sponsors') as Sponsorship[] || [];
+        return sponsors.find((sponsor: Sponsorship)  => sponsor.recipient === address)?.sponsor;
     }
 
     getIdentifier() {

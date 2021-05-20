@@ -9,6 +9,8 @@ export enum OperationTypes {
     Lease = 'Lease',
     CancelLease = 'CANCEL LEASE',
     MassTransfer = 'MASS TRANSFER',
+    Data = 'DATA',
+    SetScript = 'SET SCRIPT',
     Anchor = 'ANCHOR',
     Association = 'ASSOCIATION',
     RevokeAssociation = 'REVOKE ASSOCIATION',

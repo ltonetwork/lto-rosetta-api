@@ -89,19 +89,7 @@ const getNetworkOptions = async (req: Request, res: Response, next: NextFunction
             },
             allow: {
                 operation_statuses: Object.values(OperationStatuses),
-                operation_types: [
-                    OperationTypes.Genesis,
-                    OperationTypes.Reward,
-                    OperationTypes.Transfer,
-                    OperationTypes.Lease,
-                    OperationTypes.CancelLease,
-                    OperationTypes.MassTransfer,
-                    OperationTypes.Anchor,
-                    OperationTypes.Association,
-                    OperationTypes.RevokeAssociation,
-                    OperationTypes.Sponsor,
-                    OperationTypes.CancelSponsor,
-                ],
+                operation_types: Object.values(OperationTypes),
                 errors: errors,
                 historical_balance_lookup: false
             }

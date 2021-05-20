@@ -22,46 +22,13 @@ export class Account {
     }
 
     async getBalanceAtBlock(block?: Block): Promise<{ height: number; balance: number }> {
-        const balancesHistory = await apiCall(`${API_BASE}/addresses/balance/history/${this.address}`)  as Array<{ height: number, balance: number }>;
         const effectiveBalance = await apiCall(`${API_BASE}/addresses/effectiveBalance/${this.address}`);
+        const lastBlock = await apiCall(`${API_BASE}/blocks/last`);
 
-        if(block) {
-            // if (oldestBlock > block.getHeight()) {
-            //     throw new ErrorResponse(ErrorCodes.BalanceAtOldBlock, `Can't fetch balance for an old block, the oldest possible is ${oldestBlock}`)
-            // }
-            return balancesHistory.reduce((a, b) => {
-                let aDiff = Math.abs(a.height - block.getHeight());
-                let bDiff = Math.abs(b.height - block.getHeight());
-
-                let height;
-                if (aDiff == bDiff) {
-                    height = a > b ? a.height : b.height;
-                } else {
-                    height = bDiff < aDiff ? b.height : a.height;
-                }
-                return {
-                    height,
-                    balance: effectiveBalance.balance
-                }
-            });
-        }
-        if (balancesHistory.length > 0) {
-            return {
-                height: balancesHistory.reverse().pop().height,
-                balance: effectiveBalance.balance
-            };
-        } else {
-            return {
-                height: 1,
-                balance: 0
-            }
-        }
-        // const oldestBlock = balancesHistory[balancesHistory.length - 1].height;
-        // const balanceAtBlock = balancesHistory.find((element) => element.height === block.getHeight());
-        // if (balanceAtBlock === undefined) {
-        //     throw new ErrorResponse(ErrorCodes.BalanceAtOldBlock, `Can't fetch balance for an old block, the oldest possible is ${oldestBlock}`)
-        // }
-        // return balanceAtBlock.balance;
+        return {
+            height: block ? block.getHeight() : lastBlock.height,
+            balance: effectiveBalance.balance
+        };
     }
 
     async getBalanceData(block?: Block) {
