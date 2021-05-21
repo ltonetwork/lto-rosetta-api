@@ -21,7 +21,7 @@ const server = app.listen(app.get("port"), async () => {
     );
     console.log("  Press CTRL-C to stop\n");
     await setStorage();
-    console.log('Storage now live')
+    console.log(`State now stored at: ${__dirname}/storage`)
 });
 
 const setStorage = async () => {
