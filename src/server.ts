@@ -26,7 +26,7 @@ const server = app.listen(app.get("port"), async () => {
 
 const setStorage = async () => {
     await storage.init({
-        dir: '../data',
+        dir: `${__dirname}/storage`,
 
         stringify: JSON.stringify,
 

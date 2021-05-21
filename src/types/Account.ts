@@ -21,22 +21,22 @@ export class Account {
         return this.address;
     }
 
-    async getBalanceAtBlock(block?: Block): Promise<{ height: number; balance: number }> {
+    async getBalanceAtBlock(block?: Block): Promise<{ height: number; hash: string; balance: number }> {
         const effectiveBalance = await apiCall(`${API_BASE}/addresses/effectiveBalance/${this.address}`);
-        const lastBlock = await apiCall(`${API_BASE}/blocks/last`);
+        const lastBlock = await apiCall(`${API_BASE}/blocks/last`) as IBlock;
 
         return {
             height: block ? block.getHeight() : lastBlock.height,
+            hash: block ? await block.getHash() : lastBlock.signature,
             balance: effectiveBalance.balance
         };
     }
 
     async getBalanceData(block?: Block) {
         const balanceAtBlock = await this.getBalanceAtBlock(block);
-        const lastFoundBlock = await apiCall(`${API_BASE}/blocks/at/${balanceAtBlock.height}`) as IBlock;
         const blockDetails = {
-            index: lastFoundBlock.height,
-            hash: lastFoundBlock.signature
+            index: balanceAtBlock.height,
+            hash: balanceAtBlock.hash
         };
         return {
             block_identifier: blockDetails,
