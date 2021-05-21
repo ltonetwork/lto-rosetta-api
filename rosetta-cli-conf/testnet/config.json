@@ -4,7 +4,7 @@
   "network": "testnet"
  },
  "online_url": "http://localhost:8080",
- "data_directory": "../data",
+ "data_directory": "../cli-checks",
  "http_timeout": 10,
  "tip_delay": 300,
  "data": {
