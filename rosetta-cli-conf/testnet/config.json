@@ -17,14 +17,10 @@
   "inactive_discrepency_search_disabled": false,
   "balance_tracking_disabled": false,
   "end_conditions": {
-   "tip": true
-  }
- },
- "construction": {
-  "constructor_dsl_file": "lto.ros",
-  "end_conditions": {
-   "create_account": 10,
-   "transfer": 10
+   "reconciliation_coverage": {
+    "coverage": 0.95,
+    "from_tip": true
+   }
   }
  }
 }
