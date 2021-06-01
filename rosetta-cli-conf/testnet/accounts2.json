@@ -1,0 +1,67 @@
+[
+  {
+    "privkey": "b3VtQJDf8fyJUbN3gLnXyyogXChVtwRHP5TtzqKRBZb1XuToGKBbRhvV8zSEcVc1y3W7iVhf8eaWyLPdRcMqzNA",
+    "account_identifier": {
+      "address": "3MrZEL5jGBE81sFzWjEvWtzKNHfDiNZ99wh"
+    },
+    "curve_type": {
+      "type": "edwards25519"
+    },
+    "currency": {
+      "symbol": "LTO",
+      "decimals": 8
+    }
+  },
+  {
+    "privkey": "5gqCU5NbwU4gc62be39LXDDALKj8opj1KZszx7ULJc2k33kk52prn8D1H2pPPwm6QVKvkuo72YJSoUhzzmAFmDH8",
+    "account_identifier": {
+      "address": "3NCoTnHLyxVfPn3PET914jyFSLx4xZeyp4k"
+    },
+    "curve_type": {
+      "type": "edwards25519"
+    },
+    "currency": {
+      "symbol": "LTO",
+      "decimals": 8
+    }
+  },
+  {
+    "privkey": "2EtcSUgHMLhAch1bFGagj4Au7pwcznEtLNMGLHatz3gCJ7imXtCVemxS4oH5QjY1Ax1oDLsVZurnoB31rD8L4iTk",
+    "account_identifier": {
+      "address": "3ND2QdSL3gFqq1zhWN4MGL9LvwrGJp9Tx4E"
+    },
+    "curve_type": {
+      "type": "edwards25519"
+    },
+    "currency": {
+      "symbol": "LTO",
+      "decimals": 8
+    }
+  },
+  {
+    "privkey": "4gg32qtsQgsFrfbZBYAdp7ec1d9GuLHS76TYpKU9AGuEBFLoCrgvYdsheBuhBbzZBD1iV4zEVE4SkQC6TdoBU9CF",
+    "account_identifier": {
+      "address": "3MyNfdy6kiQatUsPbNNXsAumjun9fjQBwed"
+    },
+    "curve_type": {
+      "type": "edwards25519"
+    },
+    "currency": {
+      "symbol": "LTO",
+      "decimals": 8
+    }
+  },
+  {
+    "privkey": "2XgrBWzrRSD2d5D9azh2vG8ETh3Du95wN5fJwbtrn1L1PCPgDvsC4qoTMoeUojeMZnd34A5Qw5VXGbP63v2qafQD",
+    "account_identifier": {
+      "address": "3NCoTnHLyxVfPn3PET914jyFSLx4xZeyp4k"
+    },
+    "curve_type": {
+      "type": "edwards25519"
+    },
+    "currency": {
+      "symbol": "LTO",
+      "decimals": 8
+    }
+  }
+]

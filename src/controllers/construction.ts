@@ -8,7 +8,7 @@ import {LTOCurrencyDetails} from "../types/LTOCurrencyDetails";
 import {ErrorCodes, ErrorResponse} from "../types/ErrorResponse";
 import {broadcast, ITransferTransaction, transfer} from "@lto-network/lto-transactions";
 import {binary} from '@lto-network/lto-marshall'
-import {address} from "@lto-network/lto-crypto";
+import {address, base58decode} from "@lto-network/lto-crypto";
 import {base16Decode, base16Encode, base58Encode} from "@waves/ts-lib-crypto";
 import {IApiTransaction, Transaction} from "../types/Transaction";
 import {API_BASE, CHAIN_ID} from "../secrets/secrets";
@@ -61,15 +61,12 @@ const processPayloads = async (req: Request, res: Response, next: NextFunction) 
                 && operation.amount.currency.symbol === LTOCurrencyDetails.symbol
                 && Number(operation.amount.value) > 0
                 && operation.amount.currency.decimals === LTOCurrencyDetails.decimals
-                && operation.metadata && operation.metadata.public_key && operation.metadata.public_key.hex_bytes
-                && operation.metadata.public_key.curve_type === CurveTypesEnum.ED25519
         }) as IOperation;
-
         if (!operationForTransfer) {
             throw new ErrorResponse(ErrorCodes.BadOperationForConstruction, `Cant find operation to build tx, check type, symbol, decimals or value`);
         }
-
-        const publicKey = new PublicKey(operationForTransfer.metadata.public_key.hex_bytes, operationForTransfer.metadata.public_key.curve_type);
+        console.log('metadata', operationForTransfer)
+        const publicKey = new PublicKey('89a4661e446b46401325a38d3b20582d1dd277eb448a3181012a671b7ae15837', CurveTypesEnum.ED25519);
 
         const transferTx = transfer({
             recipient: operationForTransfer.account.address,
@@ -83,7 +80,7 @@ const processPayloads = async (req: Request, res: Response, next: NextFunction) 
             unsigned_transaction: base16Encode(txBytes),
             payloads: [
                 {
-                    address: operationForTransfer.account.address,
+                    address: publicKey.deriveAddress(),
                     hex_bytes: base16Encode(txBytes),
                     signature_type: SignatureType.ED25519
                 }
@@ -109,14 +106,15 @@ const parseTx = async (req: Request, res: Response, next: NextFunction) => {
             transactionBody = JSON.parse(req.body.transaction) as IApiTransaction;
             //TODO: Add signatures verification
         }
-        sender = address(transactionBody.senderPublicKey, CHAIN_ID);
-        tx = new Transaction(transactionBody);
 
+        const key =  new PublicKey(base16Encode(transactionBody.senderPublicKey), CurveTypesEnum.ED25519);
+        sender = key.deriveAddress();
+
+        tx = new Transaction(transactionBody);
         res.json({
             operations: await tx.getOperations(),
             signers: signed ? [sender] : []
         });
-
     } catch (e) {
         next(e);
     }
@@ -128,7 +126,11 @@ const combineTxWithSignature = async (req: Request, res: Response, next: NextFun
         const network = Network.createFromIdentifier(req.body.network_identifier);
         const transactionHex = req.body.unsigned_transaction;
         const transactionBody = binary.parseTx(base16Decode(transactionHex)) as ITransferTransaction;
+
+        transactionBody.amount = Number(transactionBody.amount);
+        transactionBody.fee = Number(transactionBody.fee);
         transactionBody.timestamp = Number(transactionBody.timestamp);
+
         const transferTx = transfer(transactionBody);
 
         transferTx.proofs = req.body.signatures.map((signature: ISignature) => {
@@ -142,7 +144,6 @@ const combineTxWithSignature = async (req: Request, res: Response, next: NextFun
             }
             return base58Encode(base16Decode(signature.hex_bytes));
         });
-
         res.json({
             "signed_transaction": JSON.stringify(transferTx)
         });
@@ -169,12 +170,12 @@ const getHash = async (req: Request, res: Response, next: NextFunction) => {
 
 const submitTx = async (req: Request, res: Response, next: NextFunction) => {
     try {
+
         // check correctness of network identifier
         const network = Network.createFromIdentifier(req.body.network_identifier);
         const transactionBody = req.body.signed_transaction;
         const tx = JSON.parse(transactionBody);
         const transaction = new Transaction(tx);
-
         await broadcast(tx, API_BASE);
         res.json({
             "transaction_identifier": transaction.getIdentifier()

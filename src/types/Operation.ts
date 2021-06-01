@@ -35,7 +35,7 @@ export interface IOperation {
         index: number
     },
     type: OperationTypes,
-    status: OperationStatusValues,
+    status?: OperationStatusValues,
     account: IAccountIdentifier,
     amount: IAmount,
     metadata?: any
@@ -66,6 +66,17 @@ export class Operation {
             },
             type: type,
             status: status,
+            account: new Account(account).getIdentifier(),
+            amount: new Amount(Number(amount)).getObject()
+        }
+    }
+
+    static createNew(identifierIndex: number, account: string, amount: number | string, type: OperationTypes = OperationTypes.Transfer):IOperation {
+        return {
+            operation_identifier: {
+                index: identifierIndex
+            },
+            type: type,
             account: new Account(account).getIdentifier(),
             amount: new Amount(Number(amount)).getObject()
         }
