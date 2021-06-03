@@ -72,7 +72,7 @@ transfer(5){
     transfer.confirmation_depth = "1";
     transfer.operations = [
       {
-        "operation_identifier":{"index":1},
+        "operation_identifier":{"index":0},
         "type":"TRANSFER",
         "account":{{recipient.account_identifier}},
         "amount":{

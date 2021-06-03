@@ -49,4 +49,4 @@ const setStorage = async () => {
 
 server.setTimeout(10000);
 
-export default server;
+module.exports = server;

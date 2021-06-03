@@ -28,8 +28,11 @@
  },
  "construction": {
   "constructor_dsl_file": "lto.ros",
-  "stale_depth": 10,
-  "broadcast_limit": 5,
+  "stale_depth": 20,
+  "broadcast_limit": 20,
+  "clear_broadcasts": true,
+  "broadcast_behind_tip": true,
+  "quiet": false,
   "prefunded_accounts": [
    {
     "privkey": "ea6aaeebe17557e0fe256bfce08e8224a412ea1e25a5ec8b5d69618a58bad89e",
@@ -44,7 +47,7 @@
    }
   ],
   "end_conditions": {
-   "create_account": 10,
+   "create_account": 5,
    "transfer": 5
   }
  }

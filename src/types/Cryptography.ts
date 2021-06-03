@@ -35,7 +35,7 @@ export interface ISignature {
 export class PublicKey {
 
     readonly hexBytes: string;
-    private readonly curveType: CurveTypesEnum;
+    readonly curveType: CurveTypesEnum;
 
     constructor(hexBytes: string, curveType: CurveTypesEnum) {
         if (hexBytes.indexOf('0x') === 0) {
@@ -58,7 +58,4 @@ export class PublicKey {
         return base58Encode(base16Decode(this.hexBytes));
     }
 
-    fromBase58() {
-        return base58Decode(base16Encode(this.hexBytes));
-    }
 }

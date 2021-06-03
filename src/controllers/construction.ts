@@ -8,10 +8,9 @@ import {LTOCurrencyDetails} from "../types/LTOCurrencyDetails";
 import {ErrorCodes, ErrorResponse} from "../types/ErrorResponse";
 import {broadcast, ITransferTransaction, transfer} from "@lto-network/lto-transactions";
 import {binary} from '@lto-network/lto-marshall'
-import {address, base58decode} from "@lto-network/lto-crypto";
 import {base16Decode, base16Encode, base58Encode} from "@waves/ts-lib-crypto";
 import {IApiTransaction, Transaction} from "../types/Transaction";
-import {API_BASE, CHAIN_ID} from "../secrets/secrets";
+import {API_BASE} from "../secrets/secrets";
 
 const ConstructionController = Router();
 
@@ -61,12 +60,14 @@ const processPayloads = async (req: Request, res: Response, next: NextFunction) 
                 && operation.amount.currency.symbol === LTOCurrencyDetails.symbol
                 && Number(operation.amount.value) > 0
                 && operation.amount.currency.decimals === LTOCurrencyDetails.decimals
+                && operation.metadata && operation.metadata.public_key && operation.metadata.public_key.hex_bytes
+                && operation.metadata.public_key.curve_type === CurveTypesEnum.ED25519
         }) as IOperation;
         if (!operationForTransfer) {
             throw new ErrorResponse(ErrorCodes.BadOperationForConstruction, `Cant find operation to build tx, check type, symbol, decimals or value`);
         }
-        console.log('metadata', operationForTransfer)
-        const publicKey = new PublicKey('89a4661e446b46401325a38d3b20582d1dd277eb448a3181012a671b7ae15837', CurveTypesEnum.ED25519);
+        //Will not work with the use of the rosetta cli as there is no metadata being passed in by lto.ros
+        const publicKey = new PublicKey(operationForTransfer.metadata.public_key.hex_bytes, operationForTransfer.metadata.public_key.curve_type);
 
         const transferTx = transfer({
             recipient: operationForTransfer.account.address,
@@ -107,9 +108,8 @@ const parseTx = async (req: Request, res: Response, next: NextFunction) => {
             //TODO: Add signatures verification
         }
 
-        const key =  new PublicKey(base16Encode(transactionBody.senderPublicKey), CurveTypesEnum.ED25519);
+        const key = new PublicKey(base16Encode(transactionBody.senderPublicKey), CurveTypesEnum.ED25519);
         sender = key.deriveAddress();
-
         tx = new Transaction(transactionBody);
         res.json({
             operations: await tx.getOperations(),
