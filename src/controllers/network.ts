@@ -89,9 +89,7 @@ const getNetworkOptions = async (req: Request, res: Response, next: NextFunction
             },
             allow: {
                 operation_statuses: Object.values(OperationStatuses),
-                operation_types: [
-                    OperationTypes.Transfer
-                ],
+                operation_types: Object.values(OperationTypes),
                 errors: errors,
                 historical_balance_lookup: false
             }

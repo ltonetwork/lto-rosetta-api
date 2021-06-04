@@ -26,7 +26,7 @@ request_funds(1){
 
 create_account(1){
   create{
-    network = {"network":"mainnet", "blockchain":"lto"};
+    network = {"network":"testnet", "blockchain":"lto"};
     key = generate_key({"curve_type": "edwards25519"});
     account = derive({
       "network_identifier": {{network}},
@@ -43,7 +43,7 @@ create_account(1){
 
 transfer(10){
   transfer{
-    transfer.network = {"network":"mainnet", "blockchain":"lto"};
+    transfer.network = {"network":"testnet", "blockchain":"lto"};
     currency = {"symbol":"LTO", "decimals":8};
     sender = find_balance({
       "minimum_balance":{
@@ -86,7 +86,7 @@ transfer(10){
 
 return_funds(10){
   transfer{
-    transfer.network = {"network":"mainnet", "blockchain":"lto"};
+    transfer.network = {"network":"testnet", "blockchain":"lto"};
     currency = {"symbol":"LTO", "decimals":8};
     max_fee = "84000000000000";
     sender = find_balance({

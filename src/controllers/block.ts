@@ -6,6 +6,7 @@ import {Block} from "../types/Block";
 import {IApiTransaction, Transaction} from "../types/Transaction";
 import * as async from 'async';
 import {ErrorCodes, ErrorResponse} from "../types/ErrorResponse";
+import {IOperation, Operation} from "Operation";
 
 const BlockController = Router();
 
@@ -58,7 +59,12 @@ const getBlock = async (req: Request, res: Response, next: NextFunction) => {
             height: block.getHeight()
         }, block);
 
-        txWithOperations = txWithOperations.concat(await blockRewardTx.getOperations())
+        const blockRewardTxWithOperations = {
+            transaction_identifier: blockRewardTx.getIdentifier(),
+            operations: await blockRewardTx.getOperations(),
+        }
+
+        txWithOperations = txWithOperations.concat(blockRewardTxWithOperations)
             .filter((tx: any) => tx.operations && tx.operations.length > 0);
 
         const blockDetails = {
