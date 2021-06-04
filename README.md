@@ -28,7 +28,7 @@ docker run -v /lto-data:/var/lib/LTO -v lto-config:/etc/lto -p 6869:6869 -p 6862
 
 ### Calling API
 
-API call examples are shown [here](https://www.getpostman.com/collections/f09f5a7b80c6a357b5c2).
+API call examples are shown [here](https://www.getpostman.com/collections/3c2028a379f2297914af).
 
 ### Configuration
 
