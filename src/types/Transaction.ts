@@ -135,13 +135,14 @@ export class Transaction {
     private async getTransferOperations(): Promise<Array<IOperation>> {
         const body = this.body as IApiTransaction & ITransferTransaction & WithSenderAddress;
         const senderAddress = body.sender ?? address(body.senderPublicKey, CHAIN_ID);
-        const sponsor = await this.getSponsor(senderAddress, this.block.getHeight());
+        const sponsor = await this.getSponsor(senderAddress, this?.block?.getHeight());
 
-        return Promise.resolve([
-            Operation.create(0, body.recipient, body.amount, OperationTypes.Transfer),
-            Operation.create(1, senderAddress, -body.amount, OperationTypes.Transfer),
-            Operation.create(2, sponsor ?? senderAddress, -body.fee, OperationTypes.Transfer)
-        ]);
+            return Promise.resolve([
+                Operation.createNew(0, body.recipient, body.amount, OperationTypes.Transfer),
+                Operation.createNew(1, senderAddress, -body.amount, OperationTypes.Transfer),
+                Operation.createNew(2, sponsor ?? senderAddress, -body.fee, OperationTypes.Transfer)
+            ]);
+
     }
 
     private async getLeaseTransactions(): Promise<Array<IOperation>> {

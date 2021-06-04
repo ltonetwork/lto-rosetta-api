@@ -1,4 +1,4 @@
-import {base16Decode, base58Encode} from '@waves/ts-lib-crypto'
+import {base16Decode, base16Encode, base58Decode, base58Encode} from '@waves/ts-lib-crypto'
 import {buildAddress} from '@lto-network/lto-crypto'
 import {CHAIN_ID} from "../secrets/secrets";
 import {ErrorCodes, ErrorResponse} from "./ErrorResponse";
@@ -34,8 +34,8 @@ export interface ISignature {
 
 export class PublicKey {
 
-    private readonly hexBytes: string;
-    private readonly curveType: CurveTypesEnum;
+    readonly hexBytes: string;
+    readonly curveType: CurveTypesEnum;
 
     constructor(hexBytes: string, curveType: CurveTypesEnum) {
         if (hexBytes.indexOf('0x') === 0) {
@@ -57,4 +57,5 @@ export class PublicKey {
     toBase58() {
         return base58Encode(base16Decode(this.hexBytes));
     }
+
 }

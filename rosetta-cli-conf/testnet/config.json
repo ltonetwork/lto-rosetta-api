@@ -6,7 +6,10 @@
  "online_url": "http://localhost:8080",
  "data_directory": "../cli-checks",
  "http_timeout": 10,
- "tip_delay": 300,
+ "tip_delay": 120,
+ "max_retries": 5,
+ "compression_disabled": true,
+ "memory_limit_disabled": true,
  "data": {
   "log_blocks": true,
   "log_transactions": true,
@@ -21,6 +24,31 @@
     "coverage": 0.95,
     "from_tip": true
    }
+  }
+ },
+ "construction": {
+  "constructor_dsl_file": "lto.ros",
+  "stale_depth": 20,
+  "broadcast_limit": 20,
+  "clear_broadcasts": true,
+  "broadcast_behind_tip": true,
+  "quiet": false,
+  "prefunded_accounts": [
+   {
+    "privkey": "ea6aaeebe17557e0fe256bfce08e8224a412ea1e25a5ec8b5d69618a58bad89e",
+    "account_identifier": {
+     "address": "3MzYSqyo8GBMsY8u8F2WEuoVXYuq6hnKzyj"
+    },
+    "curve_type": "edwards25519",
+    "currency": {
+     "symbol": "LTO",
+     "decimals": 8
+    }
+   }
+  ],
+  "end_conditions": {
+   "create_account": 5,
+   "transfer": 5
   }
  }
 }

@@ -6,7 +6,6 @@ import {Block} from "../types/Block";
 import {IApiTransaction, Transaction} from "../types/Transaction";
 import * as async from 'async';
 import {ErrorCodes, ErrorResponse} from "../types/ErrorResponse";
-import {IOperation, Operation} from "Operation";
 
 const BlockController = Router();
 
