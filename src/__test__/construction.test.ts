@@ -3,7 +3,7 @@ import {base16Decode} from "@waves/ts-lib-crypto";
 import {base58decode, byteArrayToHexString, signWithPrivateKey} from "@lto-network/lto-crypto";
 
 const supertest = require("supertest");
-const app = require("../server");
+const app = require("../app");
 
 const network_identifier =  {
     blockchain: "lto",
@@ -141,7 +141,6 @@ describe('Construction API test', () => {
     })
 
     it('Should submit a pre-signed transaction to the node' , async () => {
-        console.log(transaction)
         const request = {
             network_identifier,
             signed_transaction: transaction,

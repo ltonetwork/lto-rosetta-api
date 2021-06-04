@@ -1,6 +1,7 @@
 import express, {NextFunction, Request, Response} from "express";
 import compression from "compression";  // compresses requests
 import bodyParser from "body-parser";
+const storage = require('node-persist');
 // Controllers (route handlers)
 import NetworkController from "./controllers/network";
 import AccountController from "./controllers/account";
@@ -50,4 +51,29 @@ app.use((err: ErrorResponse | any, req: Request, res: Response, next: NextFuncti
     }
 });
 
-export default app;
+const setStorage = async () => {
+    await storage.init({
+        dir: `${__dirname}/storage`,
+
+        stringify: JSON.stringify,
+
+        parse: JSON.parse,
+
+        encoding: 'utf8',
+
+        logging: true,  // can also be custom logging function
+
+        ttl: false, // ttl* [NEW], can be true for 24h default or a number in MILLISECONDS or a valid Javascript Date object
+
+        expiredInterval: 2 * 60 * 1000, // every 2 minutes the process will clean-up the expired cache
+
+        // in some cases, you (or some other service) might add non-valid storage files to your
+        // storage dir, i.e. Google Drive, make this true if you'd like to ignore these files and not throw an error
+        forgiveParseErrors: false
+
+    });
+}
+
+setStorage();
+
+module.exports = app;

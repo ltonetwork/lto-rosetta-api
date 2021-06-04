@@ -55,7 +55,7 @@ transfer(5){
     // Set the recipient_amount as some value <= sender.balance-max_fee
     max_fee = "100000000";
     available_amount = {{sender.balance.value}} - {{max_fee}};
-    recipient_amount = "10000000";
+    recipient_amount = random_number({"minimum": "10000000", "maximum": "30000000"});;
     print_message({"recipient_amount":{{recipient_amount}}});
 
     // Find recipient and construct operations
