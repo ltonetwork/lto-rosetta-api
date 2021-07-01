@@ -1,6 +1,6 @@
 import errorHandler from "errorhandler";
 
-import app from "./app";
+const app = require("./app");
 
 /**
  * Error Handler. Provides full stack
@@ -12,7 +12,7 @@ if (!app.get("prod")) {
 /**
  * Start Express server.
  */
-const server = app.listen(app.get("port"), () => {
+const server = app.listen(app.get("port"), async () => {
     console.log(
         "  App is running at http://localhost:%d in %s mode",
         app.get("port"),
@@ -23,4 +23,4 @@ const server = app.listen(app.get("port"), () => {
 
 server.setTimeout(10000);
 
-export default server;
+module.exports = server;

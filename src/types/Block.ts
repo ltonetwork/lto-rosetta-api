@@ -1,6 +1,7 @@
-import {API_BASE} from "../secrets/secrets";
+import {API_BASE, BURN_ACTIVATION_HEIGHT} from "../secrets/secrets";
 import {ErrorCodes, ErrorResponse} from "./ErrorResponse";
 import {apiCall} from "../utils/utils";
+import {Operation, OperationTypes} from "./Operation";
 
 export interface IBlockIdentifier {
     index?: number,
@@ -66,7 +67,7 @@ export class Block {
 
     async fetch(): Promise<Block> {
         if (!this.data) {
-            this.data = await apiCall(`${API_BASE}/blocks/headers/at/${this.height}`);
+            this.data = await apiCall(`${API_BASE}/blocks/at/${this.height}`);
         }
         return this;
     }

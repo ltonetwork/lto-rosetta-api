@@ -1,8 +1,8 @@
 import {API_BASE} from "../secrets/secrets";
-import {Block} from "./Block";
-import {ErrorCodes, ErrorResponse} from "./ErrorResponse";
+import {Block, IBlock} from "./Block";
 import {LTOCurrencyDetails} from "./LTOCurrencyDetails";
 import {apiCall} from "../utils/utils";
+import {ErrorCodes, ErrorResponse} from "ErrorResponse";
 
 export interface IAccountIdentifier {
     address: string
@@ -21,23 +21,28 @@ export class Account {
         return this.address;
     }
 
-    async getBalance(block: Block): Promise<number> {
-        const balancesHistory = await apiCall(`${API_BASE}/debug/balances/history/${this.address}`)  as Array<{ height: number, balance: number }>;
-        const oldestBlock = balancesHistory[balancesHistory.length - 1].height;
-        const balanceAtBlock = balancesHistory.find((element) => element.height === block.getHeight());
-        if (balanceAtBlock === undefined)
-            throw new ErrorResponse(ErrorCodes.BalanceAtOldBlock, `Can't fetch balance for an old block, the oldest possible is ${oldestBlock}`)
-        return balanceAtBlock.balance;
+    async getBalanceAtBlock(block?: Block): Promise<{ height: number; hash: string; balance: number }> {
+        const effectiveBalance = await apiCall(`${API_BASE}/addresses/effectiveBalance/${this.address}`);
+        const lastBlock = await apiCall(`${API_BASE}/blocks/last`) as IBlock;
+
+        return {
+            height: block ? block.getHeight() : lastBlock.height,
+            hash: block ? await block.getHash() : lastBlock.signature,
+            balance: effectiveBalance.balance
+        };
     }
 
-    async getBalanceData(block: Block) {
-        const balanceValue = await this.getBalance(block);
-        const blockDetails = await block.getIdentifier();
+    async getBalanceData(block?: Block) {
+        const balanceAtBlock = await this.getBalanceAtBlock(block);
+        const blockDetails = {
+            index: balanceAtBlock.height,
+            hash: balanceAtBlock.hash
+        };
         return {
             block_identifier: blockDetails,
             balances: [
                 {
-                    value: balanceValue.toString(),
+                    value: balanceAtBlock.balance.toString(),
                     currency: {
                         symbol: LTOCurrencyDetails.symbol,
                         decimals: LTOCurrencyDetails.decimals,
